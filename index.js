@@ -2,7 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors'; //? for success connect from client with current Url
 import dotenv from 'dotenv';
-import router from './routers/auth/routers.js';
+import router from './routers/auth/auth-routers.js';
+import routerCM from './routers/сontent-management/cm-routers.js';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use(
   })
 );
 app.use('/api', router);
+app.use('/api', routerCM);
 
 // Connect mongoDB
 mongoose

@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { validationResult } from 'express-validator';
-import UserModel from '../../models/auth/userModel.js';
-import TokenModel from '../../models/auth/tokenModel.js'; // Temp(for instant able delete collection)
-import MailService from './service/mail-service.js';
-import TokenService from './service/token-service.js';
+import UserModel from '../../models/auth/auth-userModel.js';
+import TokenModel from '../../models/auth/auth-tokenModel.js'; // Temp(for instant able delete collection)
+import MailService from './auth-service/auth-mail-service.js';
+import TokenService from './auth-service/auth-token-service.js';
 import UserDto from '../../dtos/user-dto.js';
 
 import dotenv from 'dotenv';
