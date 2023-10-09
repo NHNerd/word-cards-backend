@@ -6,21 +6,22 @@ dotenv.config();
 
 class TokenService {
   async generateTokens(payload) {
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '30m' });
+    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '45s' });
     const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' });
     return { accessToken, refreshToken };
   }
 
-  //!!! 1 user 1 token: if user login on another device on other deviсes he's logeed !!!
+  //TODO 1 user 1 token: if user login on another device on other deviсes he's logeed !!!
   async saveToken(userId, refreshToken) {
-    //? is exist user with this id?
-    const tokenData = await TokenModel.findOne({ user: userId });
+    // is exist user with this id?
+    const tokenData = await TokenModel.findOne({ userId: userId });
+    // Old user: update refresh token
     if (tokenData) {
       tokenData.refreshToken = refreshToken;
       return tokenData.save();
     }
-    //? User first time
-    const token = await TokenModel.create({ user: userId, refreshToken });
+    // User first time: create tokens
+    const token = await TokenModel.create({ userId: userId, refreshToken: refreshToken });
     return token;
   }
 

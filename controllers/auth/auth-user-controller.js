@@ -26,7 +26,6 @@ class UserController {
       }
       // get data
       const { email, password } = req.body; //? Creating 2 variables
-
       // check: is existe user with this email
       const candidate = await UserModel.findOne({ email: email });
       if (candidate) {
@@ -105,7 +104,9 @@ class UserController {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       });
-      res.status(200).json({ message: `L O G I N: Welcome back ${userDto.email} :)` });
+      res
+        .status(200)
+        .json({ message: `L O G I N: Welcome back ${userDto.email} :) \n ${tokens.accessToken}` });
     } catch (error) {
       res.status(500).json({ message: `L O G I N: ${error.message}` });
     }
@@ -128,27 +129,21 @@ class UserController {
     try {
       // get cookies from cookies :))
       const { refreshToken } = req.cookies;
-
       // Check Token is existe?
       if (!refreshToken) {
         throw new Error(`User don't have refresh token! :(`);
       }
       // token validation
-      const userData = TokenService.validationRefreshToken(refreshToken);
-
+      const userData = await TokenService.validationRefreshToken(refreshToken);
       // Search token in BD
       const tokenFromBD = await TokenModel.findOne({ refreshToken });
-
       if (!userData || !tokenFromBD) {
         throw new Error(`User is unauthorized :(`);
       }
-
       // Get user from BD
-      const user = await UserModel.findById(tokenFromBD.user);
-
-      // Remuve sensetive information from User
+      const user = await UserModel.findById(userData.id);
+      // Remove sensetive information from User
       const userDto = new UserDto(user); // id, email, isActivated
-      console.log('ERROR');
       // Create tokens
       const tokens = await TokenService.generateTokens({ ...userDto });
       //* Save tokens to BD
@@ -158,7 +153,7 @@ class UserController {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       });
-      res.status(200).json({ message: `A C C E S S token is refreshed` });
+      res.status(200).json({ message: `A C C E S S token is refreshed :) \n ${tokens.accessToken}` });
     } catch (error) {
       res.status(500).json({ message: `R E F R E S H: ${error.message}` });
     }

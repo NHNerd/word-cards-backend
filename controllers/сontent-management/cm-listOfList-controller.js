@@ -76,9 +76,6 @@ class ListOfListController {
     try {
       const { userid, listid } = req.query;
 
-      console.log(`U S E R id: ${userid}`);
-      console.log(`L I S T id: ${listid}`);
-
       const words = await WordModel.find({ userId: userid, listId: listid });
 
       res.status(201).json(words);
