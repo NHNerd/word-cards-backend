@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const TokenSchema = mongoose.Schema({
-  user: {
+  userId: {
     // Is activated an account by email?
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

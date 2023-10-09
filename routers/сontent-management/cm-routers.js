@@ -6,7 +6,9 @@ const routerCM = new Router();
 
 routerCM.get('/initlistoflist', ListOfListController.initializationListOfList);
 routerCM.post('/addlist', ListOfListController.addList);
+routerCM.get('/lists', ListOfListController.lists);
 routerCM.post('/addword', ListOfListController.addWord);
+routerCM.get('/words', ListOfListController.words);
 routerCM.delete('/deleteword', () => {});
 
 export default routerCM;

@@ -25,16 +25,15 @@ class ListOfListController {
   async addList(req, res) {
     try {
       // Creatin collections:
-      const { user, listName, order, gameCount, words } = req.body; //? Creating few variables
+      const { userId, listName, order, gameCount } = req.body; //? Creating few variables
       const list = await ListModel.create({
-        user: user,
+        userId: userId,
         listName: listName,
         order: order,
         gameCount: gameCount,
-        words: words,
       });
 
-      res.status(201).json({ message: `List ${listName} is added :)` });
+      res.status(201).json({ message: `L I S T: ${listName} is added :)` });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: `Add L I S T: ${error.message}` });
@@ -44,10 +43,48 @@ class ListOfListController {
     try {
       // Creatin collections:
 
-      res.status(201).json({ message: `List ${req.body.name} is added :)` });
+      const { userId, listId, word, translate, order, gameCount } = req.body; //? Creating few variables
+      const list = await WordModel.create({
+        userId: userId,
+        listId: listId,
+        word: word,
+        translate: translate,
+        order: order,
+        gameCount: gameCount,
+      });
+
+      res.status(201).json({ message: `W O R D: ${word} is added :)` });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: `Add W O R D: ${error.message}` });
+    }
+  }
+  async lists(req, res) {
+    try {
+      const userId = req.query.userid;
+      console.log(userId);
+
+      const lists = await ListModel.find({ userId: userId });
+
+      res.status(201).json(lists);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: `get L I S T S: ${error.message}` });
+    }
+  }
+  async words(req, res) {
+    try {
+      const { userid, listid } = req.query;
+
+      console.log(`U S E R id: ${userid}`);
+      console.log(`L I S T id: ${listid}`);
+
+      const words = await WordModel.find({ userId: userid, listId: listid });
+
+      res.status(201).json(words);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: `get W O R D S: ${error.message}` });
     }
   }
 }

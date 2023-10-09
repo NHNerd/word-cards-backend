@@ -1,15 +1,21 @@
 import mongoose from 'mongoose';
 
 const WordSchema = mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  listId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'List',
+  },
   word: {
     type: String,
     required: [true, 'Enter a word'],
-    unique: true,
   },
   translate: {
     type: String,
     required: [true, 'Enter a word'],
-    unique: true,
   },
   order: Number,
   gameCount: Number,

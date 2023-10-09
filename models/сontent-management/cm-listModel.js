@@ -1,21 +1,20 @@
 import mongoose from 'mongoose';
-import WordModel from './cm-wordModel.js';
 
 const ListSchema = mongoose.Schema({
-  user: {
-    // Is activated an account by email?
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
   listName: {
     type: String,
     required: [true, 'Enter a list name'],
-    unique: true,
   },
   order: Number,
   gameCount: Number,
-  words: [WordModel.schema],
 });
+
+// Создать уникальный индекс для поля listName в пределах каждого пользователя
+// ListSchema.index({ user: 1, listName: 1 }, { unique: true });
 
 const ListModel = mongoose.model('List', ListSchema); //? User - the collection name
 
