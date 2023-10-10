@@ -6,6 +6,7 @@ import TokenModel from '../../models/auth/auth-tokenModel.js'; // Temp(for insta
 import MailService from './auth-service/auth-mail-service.js';
 import TokenService from './auth-service/auth-token-service.js';
 import UserDto from '../../dtos/user-dto.js';
+import { ApiError, customResponse } from '../service/errorHandler.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -22,14 +23,14 @@ class UserController {
         //? Add elemnt in array start
         errorMessages.unshift('Incorrect-input: ');
         //? join convert array to string
-        throw new Error(errorMessages.join('\n'));
+        throw new ApiError(401, 'L O G U P:', errorMessages.join('\n')); //? 401 - Unauthorized
       }
       // get data
       const { email, password } = req.body; //? Creating 2 variables
       // check: is existe user with this email
       const candidate = await UserModel.findOne({ email: email });
       if (candidate) {
-        throw new Error(`User with email ${email} already exists!`);
+        throw new ApiError(409, 'L O G U P:', `User with email ${email} already exists!`); //? 409 - Conflict
       }
       // hash password
       const hashPassword = bcrypt.hashSync(password, 3); // It is a sync func
@@ -40,7 +41,6 @@ class UserController {
         email,
         `${process.env.API_URL}/api/activate/${activationLink}`
       );
-
       //* save user to DB
       const user = await UserModel.create({ email: email, password: hashPassword, activationLink });
       // Remuve sensetive information from User
@@ -49,7 +49,6 @@ class UserController {
       const tokens = await TokenService.generateTokens({ ...userDto });
       //* Save tokens to BD
       await TokenService.saveToken(userDto.id, tokens.refreshToken);
-
       // response to client( set into cookies )
       res.cookie('refreshToken', tokens.refreshToken, {
         maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -57,8 +56,7 @@ class UserController {
       });
       res.status(201).json({ message: `L O G U P: User ${userDto.email} successfully added :)` });
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: `L O G U P: ${error.message}` });
+      customResponse(res, error, ApiError);
     }
   }
   async activate(req, res) {
@@ -67,7 +65,7 @@ class UserController {
       const activationLink = await req.params.link;
       const user = await UserModel.findOne({ activationLink });
       if (!user) {
-        throw new Error(`Uncorrect activation link`);
+        throw new ApiError(404, 'A C T I V A T E: ', 'Uncorrect activation link'); //? 404 - Not Found
       }
       user.isActivated = true;
       // Asve user tu BD
@@ -75,7 +73,7 @@ class UserController {
       // Swithc on client
       res.redirect(process.env.CLIENT_URL);
     } catch (error) {
-      res.status(500).json({ message: `A C T I V A T E: ${error.message}` });
+      customResponse(res, error, ApiError);
     }
   }
   async login(req, res) {
@@ -85,13 +83,13 @@ class UserController {
       // check: is existe user with this email
       const user = await UserModel.findOne({ email: email });
       if (!user) {
-        throw new Error(`User with this email ${email} is does not found :(`);
+        throw new ApiError(404, 'L O G I N: ', `User with this email ${email} is does not found :(`, 21); //? 404 - Not Found
       }
 
       // Compare passwords
       const isPasswordsEquals = await bcrypt.compare(password, user.password);
       if (!isPasswordsEquals) {
-        throw new Error('Incorrect password!!!');
+        throw new ApiError(401, 'L O G I N: ', 'Incorrect password!!!'); //? 401 - Unauthorized
       }
       // Remuve sensetive information from User
       const userDto = new UserDto(user); // id, email, isActivated
@@ -108,7 +106,7 @@ class UserController {
         .status(200)
         .json({ message: `L O G I N: Welcome back ${userDto.email} :) \n ${tokens.accessToken}` });
     } catch (error) {
-      res.status(500).json({ message: `L O G I N: ${error.message}` });
+      customResponse(res, error, ApiError);
     }
   }
   //! What is need in clients body?
@@ -131,14 +129,14 @@ class UserController {
       const { refreshToken } = req.cookies;
       // Check Token is existe?
       if (!refreshToken) {
-        throw new Error(`User don't have refresh token! :(`);
+        throw new ApiError(404, 'R E F R E S H: ', `User don't have refresh token! :(`); //? 404 - Not Found
       }
       // token validation
       const userData = await TokenService.validationRefreshToken(refreshToken);
       // Search token in BD
       const tokenFromBD = await TokenModel.findOne({ refreshToken });
       if (!userData || !tokenFromBD) {
-        throw new Error(`User is unauthorized :(`);
+        throw new ApiError(404, 'R E F R E S H: ', 'User is unauthorized :('); //? 404 - Unauthorized
       }
       // Get user from BD
       const user = await UserModel.findById(userData.id);
@@ -155,7 +153,7 @@ class UserController {
       });
       res.status(200).json({ message: `A C C E S S token is refreshed :) \n ${tokens.accessToken}` });
     } catch (error) {
-      res.status(500).json({ message: `R E F R E S H: ${error.message}` });
+      customResponse(res, error, ApiError);
     }
   }
 }

@@ -17,23 +17,18 @@ class MailService {
     });
   }
   async sendActivationMail(to, link) {
-    try {
-      const info = await this.transporter.sendMail({
-        from: process.env.SMTP_USER,
-        to,
-        subject: 'The Word Cards: Account activation' + process.env.API_URL,
-        text: '',
-        html: `
+    await this.transporter.sendMail({
+      from: process.env.SMTP_USER,
+      to,
+      subject: 'The Word Cards: Account activation' + process.env.API_URL,
+      text: '',
+      html: `
           <div>
             <h1>For activate your account click on link</h1>
             <a href='${link}'>${link}</a>
           </div>
         `,
-      });
-      console.log('Email sent on: ' + to + ' messageID: ' + info.messageId);
-    } catch (error) {
-      console.error('Error sending email:', error);
-    }
+    });
   }
 }
 

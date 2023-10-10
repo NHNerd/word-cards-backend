@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
+    credentials: true, //? provede cookies
     origin: [
       'http://localhost:5173',
       'http://192.168.1.4:5173',
