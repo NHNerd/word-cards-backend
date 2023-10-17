@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { validationResult } from 'express-validator';
 import WordModel from '../../models/сontent-management/cm-wordModel.js';
 import ListModel from '../../models/сontent-management/cm-listModel.js';
+import { ApiError, customResponse } from '../service/errorHandler.js';
 
 // import dotenv from 'dotenv';
 // dotenv.config();
@@ -39,6 +40,25 @@ class ListOfListController {
       res.status(500).json({ message: `Add L I S T: ${error.message}` });
     }
   }
+  async replaceLists(req, res) {
+    try {
+      // Creatin collections:
+
+      const lists = req.body; //?
+      const userId = lists[0].userId;
+
+      const filter = { userId: userId };
+
+      await ListModel.deleteMany(filter);
+
+      await ListModel.insertMany(lists);
+
+      res.status(201).json({ message: `REPLACE L I S T: success :)` });
+    } catch (error) {
+      console.log('E R R O R: ' + error);
+      res.status(500).json({ message: `ERROR: REPLACE L I S T: ${error.message}` });
+    }
+  }
   async addWord(req, res) {
     try {
       // Creatin collections:
@@ -62,13 +82,16 @@ class ListOfListController {
   async lists(req, res) {
     try {
       const userId = req.query.userid;
-      console.log(userId);
 
-      const lists = await ListModel.find({ userId: userId });
+      let lists = await ListModel.find({ userId: userId });
 
+      if (lists.length === 0) {
+        lists = false;
+      }
       res.status(201).json(lists);
     } catch (error) {
       console.log(error);
+
       res.status(500).json({ message: `get L I S T S: ${error.message}` });
     }
   }
@@ -82,6 +105,18 @@ class ListOfListController {
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: `get W O R D S: ${error.message}` });
+    }
+  }
+  async deleteList(req, res) {
+    try {
+      const listId = req.params.listId;
+
+      await ListModel.deleteOne({ _id: listId });
+
+      res.status(201).json({ message: `List - successfully deleted` });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: `delete L I S T: ${error.message}` });
     }
   }
 }

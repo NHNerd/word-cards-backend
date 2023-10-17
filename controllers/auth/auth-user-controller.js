@@ -102,9 +102,12 @@ class UserController {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       });
-      res
-        .status(200)
-        .json({ message: `L O G I N: Welcome back ${userDto.email} :) \n ${tokens.accessToken}` });
+      res.status(200).json({
+        accessToken: tokens.accessToken,
+        userId: userDto.id,
+        message: `L O G I N: Welcome back ${userDto.email} :)`,
+        success: true,
+      });
     } catch (error) {
       customResponse(res, error, ApiError);
     }

@@ -15,8 +15,8 @@ export class ApiError extends Error {
 
 export function customResponse(res, error, ApiError) {
   if (error instanceof ApiError) {
-    res.status(error.status).json({ message: error.from + ' ' + error.message });
+    res.status(error.status).json({ message: error.from + ' ' + error.message, success: false });
   } else {
-    res.status(500).json({ message: `L O G U P: ${error.message}` });
+    res.status(500).json({ message: `L O G U P: ${error.message}`, success: false });
   }
 }
